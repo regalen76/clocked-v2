@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useHolidays } from '~/composables/useHolidays'
+import { useTasks, type Task } from '~/composables/useTasks'
 
 const { holidaysMap, isHoliday, getHolidayInfo, monthHolidays, error, refresh, data } = useHolidays()
 
@@ -42,6 +43,24 @@ function isToday(day: number | null) {
 function formatDateIndonesian(date: Date) {
   return date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 }
+
+// Tasks for selected day
+const { fetchTasksByDay } = useTasks()
+const dayTasks = ref<Task[]>([])
+
+async function loadDayTasks(d: Date | null) {
+  if (!d) {
+    dayTasks.value = []
+    return
+  }
+  const iso = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().slice(0,10)
+  dayTasks.value = await fetchTasksByDay(iso)
+}
+
+watch(selectedDate, loadDayTasks)
+// initialize to today
+selectedDate.value = new Date()
+loadDayTasks(selectedDate.value)
 </script>
 
 <template>
@@ -176,6 +195,20 @@ function formatDateIndonesian(date: Date) {
               </div>
             </template>
             <p v-else class="text-muted-foreground">No holiday on this date</p>
+
+            <div class="space-y-2">
+              <p class="text-sm font-medium">Tasks on this day</p>
+              <div v-if="dayTasks.length===0" class="text-muted-foreground text-sm">No tasks</div>
+              <div v-else class="grid gap-2">
+                <div v-for="t in dayTasks" :key="t.ID" class="flex items-center justify-between border rounded p-2">
+                  <div class="text-sm">
+                    <span class="font-medium">{{ t.name }}</span>
+                    <span class="text-xs text-muted-foreground" v-if="t.subject"> — {{ t.subject }}</span>
+                  </div>
+                  <span class="text-xs" :class="t.completed ? 'text-green-600' : 'text-amber-600'">{{ t.completed ? 'Completed' : 'Open' }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -37,4 +37,17 @@ func SetupRoutes(app *fiber.App) {
 	// Dashboard
 	dashboard := api.Group("/dashboard")
 	dashboard.Get("/", handler.GetHolidays)
+
+	// Tasks
+	tasks := api.Group("/tasks", middleware.Protected())
+	tasks.Get("/", handler.GetTasks)
+	tasks.Post("/", handler.CreateTask)
+	tasks.Patch("/:id", handler.UpdateTask)
+	tasks.Get("/day", handler.GetTasksByDay)
+
+	// Attendance
+	attendance := api.Group("/attendance", middleware.Protected())
+	attendance.Get("/", handler.ListAttendance)
+	attendance.Post("/clockin", handler.ClockIn)
+	attendance.Post("/clockout", handler.ClockOut)
 }

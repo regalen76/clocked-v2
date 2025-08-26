@@ -2,12 +2,13 @@ import type { Login, LoginResponse } from '~/types/auth'
 
 export const useAuth = () => {
   const token = useCookie<string | null>('token')
+  const apiBase = useRuntimeConfig().public.apiBase as string
 
   const isLoggedIn = computed(() => !!token.value)
 
   async function login(values: Login) {
     const { data, error } = await useFetch<LoginResponse>(
-      'http://localhost:8000/api/auth/login',
+      `${apiBase}/auth/login`,
       {
         method: 'POST',
         body: values,

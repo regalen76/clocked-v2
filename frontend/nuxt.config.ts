@@ -9,6 +9,13 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  runtimeConfig: {
+    public: {
+      // In production we serve frontend via nginx and proxy /api -> backend
+      // You can override this with NUXT_PUBLIC_API_BASE
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
+    },
+  },
   modules: [
     "@nuxt/fonts",
     "@nuxt/icon",

@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: clocked_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: clocked
+      POSTGRES_USER: clocked
+      POSTGRES_PASSWORD: clocked
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - clocked_net
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: clocked_backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: clocked
+      DB_PASSWORD: clocked
+      DB_NAME: clocked
+      SECRET: ${JWT_SECRET:-changeme}
+    depends_on:
+      - db
+    networks:
+      - clocked_net
+    # Uncomment to expose backend directly (optional)
+    # ports:
+    #   - "8000:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        # The SPA will call this path; nginx proxies /api to backend
+        NUXT_PUBLIC_API_BASE: /api
+    container_name: clocked_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - clocked_net
+
+volumes:
+  db_data:
+
+networks:
+  clocked_net:
+    driver: bridge
+

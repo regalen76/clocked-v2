@@ -61,17 +61,17 @@ const data = {
   projects: [
     {
       name: 'Attendances',
-      url: '#',
+      url: '/attendances',
       icon: Frame,
     },
     {
       name: 'Tasks',
-      url: '#',
+      url: '/tasks',
       icon: PieChart,
     },
     {
       name: 'Timesheet',
-      url: '#',
+      url: '/timesheet',
       icon: Map,
     },
   ],

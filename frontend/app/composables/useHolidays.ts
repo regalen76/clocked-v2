@@ -19,10 +19,11 @@ function dateKey(y: number, m0: number, d: number) {
 
 export function useHolidays() {
   const { token } = useAuth();
+  const apiBase = useRuntimeConfig().public.apiBase as string;
 
   // hit your Fiber API which now returns { status, message, data: { 'YYYY-MM-DD': { summary } } }
   const { data, error, pending, refresh } = useFetch<ApiResponse>(
-    "http://localhost:8000/api/dashboard",
+    `${apiBase}/dashboard`,
     {
       headers: token.value
         ? {
